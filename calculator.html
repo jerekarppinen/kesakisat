@@ -1,0 +1,257 @@
+<script src="https://cdn.fancygrid.com/fancy.min.js"></script>
+<script src="jquery.js"></script>
+
+<div id="results">
+</div>
+<div id="container"></div>
+
+<script>
+
+class CalculatePoints {
+	constructor() {
+		this.documentReady();
+		this.totalPoints = [];
+		var x = document.getElementById("results");
+		x.style.display = 'block';
+	}
+	
+	 sortProperties(obj){ // https://gist.github.com/umidjons/9614157
+	  // convert object into array
+		var sortable=[];
+		for(var key in obj)
+			if(obj.hasOwnProperty(key))
+				sortable.push([key, obj[key]]); // each item is an array in format [key, value]
+		
+		// sort items by value
+		sortable.sort(function(a, b)
+		{
+		  return a[1]-b[1]; // compare numbers
+		});
+		return sortable; // array in format [ [ key1, val1 ], [ key2, val2 ], ... ]
+	}
+	
+	calculate(fancyGrid) {
+		data = fancyGrid.getData();
+		
+		//this.calculateScore(data, 'tikanheitto', 'high')
+		//this.calculateScore(data, 'kavynheitto', 'high')
+		//this.calculateScore(data, 'pituushyppy', 'high')
+		//this.calculateScore(data, 'tukkihumala', 'low')
+		//this.calculateScore(data, 'tolkkikavely', 'low')
+		//this.calculateScore(data, 'kenganheitto', 'high')
+		this.calculateScore(data, 'molkky', 'high')
+		this.drawResults()
+		console.log((this.totalPoints))
+	}
+	
+	flipValues(values) {
+	  var ret = {};
+	  for(var key in values){
+		ret[values[key]] = key;
+	  }
+	  return ret;
+	}
+	
+	documentReady() {
+		$( document ).ready(function() {
+			console.log( "ready!" );
+		});
+	}
+	
+	initiateTable() {
+		$('#results').html('');
+		$('#results').append('<table border><thead><tr><th>Nimi</th><th>Pisteet</th></tr></thead><tbody></tbody></table>')
+	}
+	
+	drawResults() {
+		this.initiateTable();
+		var sorted = this.sortProperties(this.totalPoints)
+		for (var c in sorted) {
+			var newElement = $('#results').find('tbody').append('<tr><td>' + sorted[c][0] + '</td><td>' + sorted[c][1] + '</td></tr>');
+		}
+	}
+
+	calculateScore(data, laji, direction) {
+		var lajipisteet = [];
+		for(var key in data) {
+			if (lajipisteet[data[key]['nimi']] === undefined) {
+				lajipisteet[data[key]['nimi']] = [];
+			}
+			
+			lajipisteet[data[key]['nimi']].push(data[key][laji])
+		}
+		
+		lajipisteet = this.sortProperties(lajipisteet)
+		
+		console.log(laji, lajipisteet)
+		
+		if (direction === 'high') {
+			var points = 1
+			var best = lajipisteet[points-1][1]
+		}
+		if (direction === 'low') {
+			var points = Object.keys(lajipisteet).length
+			var best = lajipisteet[0][1]
+		}
+	
+		for(var key in lajipisteet) {
+			var nimi = lajipisteet[key][0]
+			var pisteet = parseInt(lajipisteet[key][1])
+			
+			if (this.totalPoints[nimi] === undefined) {
+				this.totalPoints[nimi] = 0;
+			}
+			
+			if (parseInt(pisteet) > best) {
+				best = pisteet;
+				if (direction === 'high') {
+					points = points + 1;
+				}
+				if (direction === 'low') {
+					points = points - 1;
+				}
+			}
+					
+			var currentPoints = this.totalPoints[nimi];
+			
+			if(!isNaN(currentPoints)) {
+				var newPoints = parseInt(currentPoints) + parseInt(points);
+				this.totalPoints[nimi] = newPoints;		
+			}
+			else {
+				this.totalPoints[nimi] = points;
+			}
+		}
+		
+		console.log('')
+	}
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+
+var x = document.getElementById("results");
+x.style.display = 'none';
+
+  new FancyGrid({
+    resizable: true,
+    renderTo: 'container',
+    title: 'Pankajärven kesäkisakalkulaattori',
+    width: 1000,
+    height: 1000,
+    trackOver: true,
+    selModel: 'rows',
+    data: data,
+    tbar: [{
+      text: 'Lisää',
+      action: 'add'
+    }, {
+      text: 'Poista',
+      action: 'remove'
+    }, {
+      text: 'Laske',
+       handler: function() {
+		calculatePoints = new CalculatePoints();
+		calculatePoints.calculate(this);
+		//calculate(this);
+      }
+    }],
+    defaults: {
+      type: 'string',
+      width: 75,
+      resizable: true,
+      sortable: true,
+      editable: true
+    },
+    clicksToEdit: 1,
+    columnLines: false,
+    columnClickData: true,
+    columns: [{
+      title: 'Nimi',
+      index: 'nimi',
+      width: 100
+    }, {
+      title: 'Tikanheitto',
+      index: 'tikanheitto',
+      width: 100
+    }, {
+      title: 'Kävynheitto',
+      index: 'kavynheitto',
+      width: 100
+    }, {
+      title: 'Pituushyppy (cm)',
+      index: 'pituushyppy',
+      type: 'number',
+		width: 120
+    }, {
+      title: 'Tukkihumala (sec)',
+      index: 'tukkihumala',
+      width: 120
+    }, {
+      title: 'Tölkkikävely (sec)',
+      index: 'tolkkikavely',
+	  width: 120
+    }
+	, {
+      title: 'Aasin häntä',
+      index: 'aasinhanta',
+	  width: 100
+    }
+	,{
+      title: 'Kengän heitto',
+      index: 'kenganheitto',
+	  width: 100
+    }
+	,{
+      title: 'Mölkky',
+      index: 'molkky',
+	  width: 100
+    }
+	]
+  });
+});
+
+var data = [{
+  "nimi": "Irmeli",
+  "tikanheitto": "33",
+  "kavynheitto": "7",
+  "pituushyppy": "100",
+  "tukkihumala": "11",
+  "tolkkikavely": "32",
+  "aasinhanta": "5",
+  "kenganheitto": "150",
+  "molkky": "1"
+},
+{
+  "nimi": "Aukusti",
+  "tikanheitto": "33",
+  "kavynheitto": "7",
+  "pituushyppy": "200",
+  "tukkihumala": "98",
+  "tolkkikavely": "32",
+  "aasinhanta": "5",
+  "kenganheitto": "120",
+  "molkky": "2"
+},
+{
+  "nimi": "Janne",
+  "tikanheitto": "14",
+  "kavynheitto": "10",
+  "pituushyppy": "200",
+  "tukkihumala": "45",
+  "tolkkikavely": "36",
+  "aasinhanta": "6",
+  "kenganheitto": "250",
+  "molkky": "3"
+},
+{
+  "nimi": "Seppo",
+  "tikanheitto": "12",
+  "kavynheitto": "6",
+  "pituushyppy": "130",
+  "tukkihumala": "45",
+  "tolkkikavely": "44",
+  "aasinhanta": "7",
+  "kenganheitto": "150",
+  "molkky": "4"
+}];
+</script>
