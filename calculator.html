@@ -33,12 +33,12 @@ class CalculatePoints {
 	calculate(fancyGrid) {
 		data = fancyGrid.getData();
 		
-		//this.calculateScore(data, 'tikanheitto', 'high')
-		//this.calculateScore(data, 'kavynheitto', 'high')
-		//this.calculateScore(data, 'pituushyppy', 'high')
-		//this.calculateScore(data, 'tukkihumala', 'low')
-		//this.calculateScore(data, 'tolkkikavely', 'low')
-		//this.calculateScore(data, 'kenganheitto', 'high')
+		this.calculateScore(data, 'tikanheitto', 'high')
+		this.calculateScore(data, 'kavynheitto', 'high')
+		this.calculateScore(data, 'pituushyppy', 'high')
+		this.calculateScore(data, 'tukkihumala', 'low')
+		this.calculateScore(data, 'tolkkikavely', 'low')
+		this.calculateScore(data, 'kenganheitto', 'high')
 		this.calculateScore(data, 'molkky', 'high')
 		this.drawResults()
 		console.log((this.totalPoints))
